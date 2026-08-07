@@ -12,93 +12,93 @@ public class EventMapper {
 
     public SensorEventAvro toAvro(SensorEvent event) {
         Object payload = switch (event) {
-            case MotionSensorEvent e -> new MotionSensorAvro(
-                    e.getLinkQuality(),
-                    e.isMotion(),
-                    e.getVoltage()
-            );
+            case MotionSensorEvent e -> MotionSensorAvro.newBuilder()
+                    .setLinkQuality(e.getLinkQuality())
+                    .setMotion(e.isMotion())
+                    .setVoltage(e.getVoltage())
+                    .build();
 
-            case TemperatureSensorEvent e -> new TemperatureSensorAvro(
-                    e.getId(),
-                    e.getHubId(),
-                    e.getTimestamp(),
-                    e.getTemperatureC(),
-                    e.getTemperatureF()
-            );
+            case TemperatureSensorEvent e -> TemperatureSensorAvro.newBuilder()
+                    .setId(e.getId())
+                    .setHubId(e.getHubId())
+                    .setTimestamp(e.getTimestamp())
+                    .setTemperatureC(e.getTemperatureC())
+                    .setTemperatureF(e.getTemperatureF())
+                    .build();
 
-            case LightSensorEvent e -> new LightSensorAvro(
-                    e.getLinkQuality(),
-                    e.getLuminosity()
-            );
+            case LightSensorEvent e -> LightSensorAvro.newBuilder()
+                    .setLinkQuality(e.getLinkQuality())
+                    .setLuminosity(e.getLuminosity())
+                    .build();
 
-            case ClimateSensorEvent e -> new ClimateSensorAvro(
-                    e.getTemperatureC(),
-                    e.getHumidity(),
-                    e.getCo2Level()
-            );
+            case ClimateSensorEvent e -> ClimateSensorAvro.newBuilder()
+                    .setTemperatureC(e.getTemperatureC())
+                    .setHumidity(e.getHumidity())
+                    .setCo2Level(e.getCo2Level())
+                    .build();
 
-            case SwitchSensorEvent e -> new SwitchSensorAvro(
-                    e.isState()
-            );
+            case SwitchSensorEvent e -> SwitchSensorAvro.newBuilder()
+                    .setState(e.isState())
+                    .build();
             default -> throw new IllegalStateException("Unexpected value: " + event);
         };
 
-        return new SensorEventAvro(
-                event.getId(),
-                event.getHubId(),
-                event.getTimestamp(),
-                payload
-        );
+        return SensorEventAvro.newBuilder()
+                .setId(event.getId())
+                .setHubId(event.getHubId())
+                .setTimestamp(event.getTimestamp())
+                .setPayload(payload)
+                .build();
     }
 
     public HubEventAvro toAvro(HubEvent event) {
         Object payload = switch (event) {
-            case DeviceAddedEvent e -> new DeviceAddedEventAvro(
-                    e.getId(),
-                    DeviceTypeAvro.valueOf(e.getDeviceType().name())
-            );
+            case DeviceAddedEvent e -> DeviceAddedEventAvro.newBuilder()
+                    .setId(e.getId())
+                    .setType(DeviceTypeAvro.valueOf(e.getDeviceType().name()))
+                    .build();
 
-            case DeviceRemovedEvent e -> new DeviceRemovedEventAvro(
-                    e.getId()
-            );
+            case DeviceRemovedEvent e -> DeviceRemovedEventAvro.newBuilder()
+                    .setId(e.getId())
+                    .build();
 
-            case ScenarioAddedEvent e -> new ScenarioAddedEventAvro(
-                    e.getName(),
-                    e.getConditions().stream()
+            case ScenarioAddedEvent e -> ScenarioAddedEventAvro.newBuilder()
+                    .setName(e.getName())
+                    .setConditions(e.getConditions().stream()
                             .map(this::toAvro)
-                            .toList(),
-                    e.getActions().stream()
+                            .toList())
+                    .setActions(e.getActions().stream()
                             .map(this::toAvro)
-                            .toList()
-            );
+                            .toList())
+                    .build();
 
-            case ScenarioRemovedEvent e -> new ScenarioRemovedEventAvro(
-                    e.getName()
-            );
+            case ScenarioRemovedEvent e -> ScenarioRemovedEventAvro.newBuilder()
+                    .setName(e.getName())
+                    .build();
             default -> throw new IllegalStateException("Unexpected value: " + event);
         };
 
-        return new HubEventAvro(
-                event.getHubId(),
-                event.getTimestamp(),
-                payload
-        );
+        return HubEventAvro.newBuilder()
+                .setHubId(event.getHubId())
+                .setTimestamp(event.getTimestamp())
+                .setPayload(payload)
+                .build();
     }
 
     private ScenarioConditionAvro toAvro(ScenarioCondition condition) {
-        return new ScenarioConditionAvro(
-                condition.getSensorId(),
-                ConditionTypeAvro.valueOf(condition.getType().name()),
-                ConditionOperationAvro.valueOf(condition.getOperation().name()),
-                condition.getValue()
-        );
+        return ScenarioConditionAvro.newBuilder()
+                .setSensorId(condition.getSensorId())
+                .setType(ConditionTypeAvro.valueOf(condition.getType().name()))
+                .setOperation(ConditionOperationAvro.valueOf(condition.getOperation().name()))
+                .setValue(condition.getValue())
+                .build();
     }
 
     private DeviceActionAvro toAvro(DeviceAction action) {
-        return new DeviceActionAvro(
-                action.getSensorId(),
-                ActionTypeAvro.valueOf(action.getType().name()),
-                action.getValue()
-        );
+        return DeviceActionAvro.newBuilder()
+                .setSensorId(action.getSensorId())
+                .setType(ActionTypeAvro.valueOf(action.getType().name()))
+                .setValue(action.getValue())
+                .build();
     }
 }
