@@ -28,26 +28,26 @@ public class CollectorController {
     public ResponseEntity<Void> collectSensorEvent(@Valid @RequestBody SensorEvent event) {
         SensorEventAvro avroEvent = eventMapper.toAvro(event);
         System.out.println("Sensor event: " + event);
-        kafkaClient.getProducer().send(
-                new ProducerRecord<>(
-                        KafkaTopics.SENSORS,
-                        event.getId(),
-                        avroEvent
-                )
-        );
+//        kafkaClient.getProducer().send(
+//                new ProducerRecord<>(
+//                        KafkaTopics.SENSORS,
+//                        event.getId(),
+//                        avroEvent
+//                )
+//        );
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/hubs")
     public ResponseEntity<Void> collectHubEvent(@Valid @RequestBody HubEvent event) {
         HubEventAvro avroEvent = eventMapper.toAvro(event);
-        kafkaClient.getProducer().send(
-                new ProducerRecord<>(
-                        KafkaTopics.HUBS,
-                        event.getHubId(),
-                        avroEvent
-                )
-        );
+//        kafkaClient.getProducer().send(
+//                new ProducerRecord<>(
+//                        KafkaTopics.HUBS,
+//                        event.getHubId(),
+//                        avroEvent
+//                )
+//        );
         System.out.println("Hub event: " + event);
         return ResponseEntity.ok().build();
     }
