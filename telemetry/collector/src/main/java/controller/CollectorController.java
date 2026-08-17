@@ -26,7 +26,7 @@ public class CollectorController {
 
     @PostMapping("/sensors")
     public ResponseEntity<Void> collectSensorEvent(@Valid @RequestBody SensorEvent event) {
-        SensorEventAvro avroEvent = eventMapper.toAvro(event);
+//        SensorEventAvro avroEvent = eventMapper.toAvro(event);
         System.out.println("Sensor event: " + event);
 //        kafkaClient.getProducer().send(
 //                new ProducerRecord<>(
@@ -40,7 +40,7 @@ public class CollectorController {
 
     @PostMapping("/hubs")
     public ResponseEntity<Void> collectHubEvent(@Valid @RequestBody HubEvent event) {
-        HubEventAvro avroEvent = eventMapper.toAvro(event);
+//        HubEventAvro avroEvent = eventMapper.toAvro(event);
 //        kafkaClient.getProducer().send(
 //                new ProducerRecord<>(
 //                        KafkaTopics.HUBS,
