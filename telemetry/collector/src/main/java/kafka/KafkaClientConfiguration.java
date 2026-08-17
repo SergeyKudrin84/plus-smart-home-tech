@@ -23,13 +23,15 @@ public class KafkaClientConfiguration {
         return new KafkaClient() {
 
             private Producer<String, SpecificRecordBase> producer;
+            //private Producer<String, byte[]> producer;
 
             @Override
             public Producer<String, SpecificRecordBase> getProducer() {
+//            @Override
+//            public Producer<String, byte[]> getProducer() {
                 if (producer == null) {
                     initProducer();
                 }
-
                 return producer;
             }
 
@@ -39,6 +41,7 @@ public class KafkaClientConfiguration {
                 config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
                 config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
                 config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, GeneralAvroSerializer.class);
+                //config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArraySerializer");
                 producer = new KafkaProducer<>(config);
             }
 
