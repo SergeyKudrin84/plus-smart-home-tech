@@ -4,21 +4,10 @@ package telemetry.service.collector;
 
 import "telemetry/messages/sensor_event.proto";
 import "telemetry/messages/hub_event.proto";
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
 option java_package = "ru.yandex.practicum.grpc.telemetry.collector";
 
-message HubEventProto {
-  string hub_id = 1; // идентификатор хаба
-  google.protobuf.Timestamp timestamp = 2; // таймстемп события
-  oneof payload {// содержимое конкретного события
-    DeviceAddedEventProto device_added = 3;      // данные события добавления устройства
-    DeviceRemovedEventProto device_removed = 4;  // данные события удаления устройства
-    ScenarioAddedEventProto scenario_added = 5; // данные о добавленном сценарии
-    ScenarioRemovedEventProto scenario_removed = 6; // данные об удалённом сценарии
-  }
-}
 enum DeviceTypeProto {
   MOTION_SENSOR = 0;      // датчик движения
   TEMPERATURE_SENSOR = 1; // датчик температуры
@@ -39,14 +28,10 @@ message ScenarioAddedEventProto {
 message ScenarioRemovedEventProto {
   string id = 1;        // идентификатор сценария
 }
-message SensorEventProto {
-  string id = 1; // идентификатор датчика
-  google.protobuf.Timestamp timestamp = 2; // таймстемп события
-  string hubId = 3; // идентификатор связанного хаба
-}
+
 service CollectorController {
-  rpc CollectSensorEvent (SensorEventProto)
+  rpc CollectSensorEvent (telemetry.message.event.SensorEventProto)
       returns (google.protobuf.Empty);
-  rpc CollectHubEvent (HubEventProto)
+  rpc CollectHubEvent (telemetry.message.event.HubEventProto)
       returns (google.protobuf.Empty);
 }
