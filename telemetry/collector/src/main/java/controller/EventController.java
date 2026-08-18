@@ -62,7 +62,7 @@ public class EventController extends CollectorControllerGrpc.CollectorController
 
 //            kafkaClient.getProducer().send(
 //                    new ProducerRecord<>(
-//                            KafkaTopics.SENSORS,
+//                            kafka.KafkaTopics.SENSORS,
 //                            request.getId(),
 //                            grpcEventMapper.toBytes(request)
 //                    )
