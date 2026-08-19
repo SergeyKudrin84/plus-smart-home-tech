@@ -1,5 +1,7 @@
 package analyzer.kafka;
 
+import analyzer.service.AnalyzerService;
+import analyzer.service.SnapshotProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -31,11 +33,14 @@ public class AnalyzerKafkaConsumer implements SmartLifecycle {
 
     private final KafkaConsumer<String, SensorsSnapshotAvro> consumer;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    //private final SnapshotProcessor snapshotProcessor;
+    private final AnalyzerService analyzerService;
 
     private volatile boolean running;
 
-    public AnalyzerKafkaConsumer(Properties kafkaConsumerProperties) {
+    public AnalyzerKafkaConsumer(Properties kafkaConsumerProperties, AnalyzerService analyzerService) {
         this.consumer = new KafkaConsumer<>(kafkaConsumerProperties);
+        this.analyzerService = analyzerService;
     }
 
     @Override
@@ -55,9 +60,7 @@ public class AnalyzerKafkaConsumer implements SmartLifecycle {
                 for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
                     SensorsSnapshotAvro snapshot = record.value();
 
-                    System.out.println(
-                            "Получен snapshot: hubId=" + snapshot.getHubId()
-                    );
+                    analyzerService.process(snapshot);
                 }
             }
         } finally {
