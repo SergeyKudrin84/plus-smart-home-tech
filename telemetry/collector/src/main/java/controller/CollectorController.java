@@ -2,19 +2,15 @@ package controller;
 
 import jakarta.validation.Valid;
 import kafka.KafkaClient;
-import kafka.KafkaTopics;
 import lombok.RequiredArgsConstructor;
 import mapper.EventMapper;
 import model.hub.HubEvent;
 import model.sensor.SensorEvent;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
 @RestController
 @RequestMapping("/events")
@@ -30,7 +26,7 @@ public class CollectorController {
         System.out.println("Sensor event: " + event);
 //        kafkaClient.getProducer().send(
 //                new ProducerRecord<>(
-//                        KafkaTopics.SENSORS,
+//                        kafka.KafkaTopics.SENSORS,
 //                        event.getId(),
 //                        avroEvent
 //                )
@@ -43,7 +39,7 @@ public class CollectorController {
 //        HubEventAvro avroEvent = eventMapper.toAvro(event);
 //        kafkaClient.getProducer().send(
 //                new ProducerRecord<>(
-//                        KafkaTopics.HUBS,
+//                        kafka.KafkaTopics.HUBS,
 //                        event.getHubId(),
 //                        avroEvent
 //                )
