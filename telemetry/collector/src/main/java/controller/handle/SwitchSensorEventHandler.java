@@ -1,9 +1,11 @@
 package controller.handle;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.SwitchSensorProto;
 
+@Slf4j
 @Component
 public class SwitchSensorEventHandler extends BaseHandler {
 
@@ -16,9 +18,6 @@ public class SwitchSensorEventHandler extends BaseHandler {
     protected void process(SensorEventProto event) {
         SwitchSensorProto switchSensor = event.getSwitchSensor();
 
-        System.out.println(
-                "Switch event: sensorId=" + event.getId()
-                        + ", state=" + switchSensor.getState()
-        );
+        log.info("Switch event: sensorId={}, state={}", event.getId(), switchSensor.getState());
     }
 }

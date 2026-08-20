@@ -10,7 +10,6 @@ import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequestProto;
 import ru.yandex.practicum.grpc.telemetry.hubrouter.HubRouterControllerGrpc;
 
-import com.google.protobuf.Empty;
 import com.google.protobuf.util.Timestamps;
 
 import java.time.Instant;

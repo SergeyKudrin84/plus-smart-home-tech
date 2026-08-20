@@ -46,12 +46,4 @@ public class HubEventProcessor implements Runnable {
             log.info("HubEventProcessor stopped");
         }
     }
-
-//    private void process(HubEventAvro event) {
-//        log.info(
-//                "Received hub event: hubId={}, payload={}",
-//                event.getHubId(),
-//                event.getPayload()
-//        );
-//    }
 }

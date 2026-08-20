@@ -5,7 +5,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import serialization.HubEventDeserializer;
-import serialization.SensorEventDeserializer;
 import serialization.SensorsSnapshotDeserializer;
 
 import java.util.Properties;

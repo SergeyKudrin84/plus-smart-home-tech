@@ -1,9 +1,11 @@
 package controller.handle;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.TemperatureSensorProto;
 
+@Slf4j
 @Component
 public class TemperatureSensorEventHandler extends BaseHandler {
 
@@ -16,10 +18,7 @@ public class TemperatureSensorEventHandler extends BaseHandler {
     protected void process(SensorEventProto event) {
         TemperatureSensorProto temperatureSensor = event.getTemperatureSensor();
 
-        System.out.println(
-                "Temperature event: sensorId=" + event.getId()
-                        + ", temperatureC=" + temperatureSensor.getTemperatureC()
-                        + ", temperatureF=" + temperatureSensor.getTemperatureF()
-        );
+        log.info("Temperature event: sensorId={}, temperatureC={}, temperatureF={}",
+                event.getId(), temperatureSensor.getTemperatureC(), temperatureSensor.getTemperatureF());
     }
 }

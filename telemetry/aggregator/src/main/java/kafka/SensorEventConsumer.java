@@ -1,6 +1,5 @@
 package kafka;
 
-import jakarta.annotation.PostConstruct;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.stereotype.Component;
@@ -10,7 +9,6 @@ import serialization.SensorEventDeserializer;
 import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
-import java.util.UUID;
 
 @Component
 public class SensorEventConsumer {
