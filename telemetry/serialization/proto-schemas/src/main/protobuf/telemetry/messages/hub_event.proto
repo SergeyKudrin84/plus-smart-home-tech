@@ -18,6 +18,13 @@ message HubEventProto {
   }
 }
 
+message DeviceActionRequestProto {
+  string hub_id = 1;
+  string scenario_name = 2;
+  DeviceActionProto action = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
 // события (де)регистрации устройств
 enum DeviceTypeProto {
   MOTION_SENSOR = 0;      // датчик движения

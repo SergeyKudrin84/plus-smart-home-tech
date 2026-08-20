@@ -9,7 +9,6 @@ import com.google.protobuf.Timestamp;
 
 
 import java.time.Instant;
-import java.util.List;
 
 @Component
 public class EventMapper {

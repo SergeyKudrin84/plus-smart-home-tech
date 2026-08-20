@@ -7,6 +7,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import kafka.KafkaClient;
 import kafka.KafkaTopics;
+import lombok.extern.slf4j.Slf4j;
 import mapper.EventMapper;
 import mapper.GrpcEventMapper;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -20,6 +21,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @GrpcService
 public class EventController extends CollectorControllerGrpc.CollectorControllerImplBase {
 
@@ -48,7 +50,7 @@ public class EventController extends CollectorControllerGrpc.CollectorController
             StreamObserver<Empty> responseObserver) {
 
         try {
-            System.out.println("Sensor event received: " + request);
+            log.info("Sensor event received: {}", request);
 
             SensorEventHandler handler = handlers.get(request.getPayloadCase());
 
@@ -60,14 +62,6 @@ public class EventController extends CollectorControllerGrpc.CollectorController
 
             handler.handle(request);
 
-//            kafkaClient.getProducer().send(
-//                    new ProducerRecord<>(
-//                            kafka.KafkaTopics.SENSORS,
-//                            request.getId(),
-//                            grpcEventMapper.toBytes(request)
-//                    )
-//            );
-//
             kafkaClient.getProducer().send(
                     new ProducerRecord<>(
                             KafkaTopics.SENSORS,
@@ -94,7 +88,7 @@ public class EventController extends CollectorControllerGrpc.CollectorController
             StreamObserver<Empty> responseObserver) {
 
         try {
-            System.out.println("Hub event received: " + request);
+            log.info("Hub event received: {}", request);
 
             kafkaClient.getProducer().send(
                     new ProducerRecord<>(
