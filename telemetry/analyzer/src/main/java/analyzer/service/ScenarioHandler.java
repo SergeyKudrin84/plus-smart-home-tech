@@ -39,6 +39,7 @@ public class ScenarioHandler {
 
     public void remove(HubEventAvro event) {
         ScenarioRemovedEventAvro scenarioEvent =
+
                 (ScenarioRemovedEventAvro) event.getPayload();
 
         scenarioRepository.findByHubIdAndName(

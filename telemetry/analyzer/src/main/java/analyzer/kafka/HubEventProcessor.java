@@ -1,5 +1,6 @@
 package analyzer.kafka;
 
+import analyzer.service.HubEventService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -18,9 +19,12 @@ import static kafka.KafkaTopics.HUBS;
 public class HubEventProcessor implements Runnable {
 
     private final KafkaConsumer<String, HubEventAvro> consumer;
+    private final HubEventService hubEventService;
 
-    public HubEventProcessor(@Qualifier("hubEventConsumerProperties") Properties properties) {
+    public HubEventProcessor(@Qualifier("hubEventConsumerProperties") Properties properties,
+                             HubEventService hubEventService) {
         this.consumer = new KafkaConsumer<>(properties);
+        this.hubEventService = hubEventService;
     }
 
     @Override
@@ -34,7 +38,7 @@ public class HubEventProcessor implements Runnable {
                 var records = consumer.poll(Duration.ofMillis(1000));
 
                 for (ConsumerRecord<String, HubEventAvro> record : records) {
-                    process(record.value());
+                    hubEventService.process(record.value());
                 }
             }
         } finally {
@@ -43,11 +47,11 @@ public class HubEventProcessor implements Runnable {
         }
     }
 
-    private void process(HubEventAvro event) {
-        log.info(
-                "Received hub event: hubId={}, payload={}",
-                event.getHubId(),
-                event.getPayload()
-        );
-    }
+//    private void process(HubEventAvro event) {
+//        log.info(
+//                "Received hub event: hubId={}, payload={}",
+//                event.getHubId(),
+//                event.getPayload()
+//        );
+//    }
 }

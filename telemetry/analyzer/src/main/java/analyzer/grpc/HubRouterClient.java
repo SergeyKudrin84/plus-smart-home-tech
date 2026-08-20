@@ -2,6 +2,7 @@ package analyzer.grpc;
 
 
 import analyzer.model.ActionType;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
@@ -14,6 +15,7 @@ import com.google.protobuf.util.Timestamps;
 
 import java.time.Instant;
 
+@Slf4j
 @Component
 public class HubRouterClient {
 
@@ -50,5 +52,12 @@ public class HubRouterClient {
                 .build();
 
         client.handleDeviceAction(request);
+
+        log.info(
+                "Device action successfully sent: hubId={}, scenario={}, sensorId={}",
+                hubId,
+                scenarioName,
+                sensorId
+        );
     }
 }

@@ -27,7 +27,7 @@ public class Scenario {
 
     private String name;
 
-    @OneToMany(
+    @OneToMany(fetch = FetchType.EAGER,
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
@@ -41,11 +41,12 @@ public class Scenario {
     @Builder.Default
     private Map<String, Condition> conditions = new HashMap<>();
 
-    @OneToMany(
+    @OneToMany(fetch = FetchType.EAGER,
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    @MapKeyColumn(table = "scenario_actions",name = "sensor_id")
+    @MapKeyColumn(table = "scenario_actions",
+            name = "sensor_id")
     @JoinTable(
             name = "scenario_actions",
             joinColumns = @JoinColumn(name = "scenario_id"),
