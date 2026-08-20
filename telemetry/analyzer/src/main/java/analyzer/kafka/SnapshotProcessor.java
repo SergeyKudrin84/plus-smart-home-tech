@@ -1,5 +1,6 @@
 package analyzer.kafka;
 
+import analyzer.grpc.HubRouterClient;
 import analyzer.model.Condition;
 import analyzer.model.ConditionOperation;
 import analyzer.model.ConditionType;
@@ -26,12 +27,15 @@ public class SnapshotProcessor {
 
     private final KafkaConsumer<String, SensorsSnapshotAvro> consumer;
     private final ScenarioRepository scenarioRepository;
+    private final HubRouterClient hubRouterClient;
 
     public SnapshotProcessor(@Qualifier("snapshotConsumerProperties") Properties properties,
-                             ScenarioRepository scenarioRepository) {
+                             ScenarioRepository scenarioRepository,
+                             HubRouterClient hubRouterClient) {
 
         this.consumer = new KafkaConsumer<>(properties);
         this.scenarioRepository = scenarioRepository;
+        this.hubRouterClient = hubRouterClient;
     }
 
     public void start() {
@@ -63,13 +67,30 @@ public class SnapshotProcessor {
 
         scenarios.stream()
                 .filter(scenario -> matches(scenario, snapshot))
-                .forEach(scenario ->
-                        log.info(
-                                "Scenario '{}' matches snapshot of hub {}",
-                                scenario.getName(),
-                                snapshot.getHubId()
-                        )
+                .forEach(scenario -> executeActions(scenario, snapshot)
                 );
+    }
+
+    private void executeActions(
+            Scenario scenario,
+            SensorsSnapshotAvro snapshot
+    ) {
+        log.info(
+                "Scenario '{}' matches snapshot of hub {}",
+                scenario.getName(),
+                snapshot.getHubId()
+        );
+
+        scenario.getActions().forEach((sensorId, action) ->
+                hubRouterClient.sendAction(
+                        snapshot.getHubId(),
+                        scenario.getName(),
+                        sensorId,
+                        action.getType(),
+                        action.getValue(),
+                        snapshot.getTimestamp()
+                )
+        );
     }
 
     private boolean matches(Scenario scenario, SensorsSnapshotAvro snapshot) {
