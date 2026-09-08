@@ -40,17 +40,17 @@ public class InventoryService {
 
     @Transactional
     public InventoryDto create(UpdateInventoryRequest request) {
-        Inventory inventory = inventoryRepository
-                .findByProductId(request.productId())
-                .orElseGet(Inventory::new);
-
-        if (inventory.getId() != null) {
-            updateQuantity(inventory, request.quantity());
-        } else {
-            inventory.setProductId(request.productId());
-            inventory.setQuantity(request.quantity());
-            inventory.setReservedQuantity(0);
+        if (inventoryRepository.findByProductId(request.productId()).isPresent()) {
+            throw new InsufficientStockException(
+                    "Запись об остатках для товара с id "
+                            + request.productId() + " уже существует"
+            );
         }
+
+        Inventory inventory = new Inventory();
+        inventory.setProductId(request.productId());
+        inventory.setQuantity(request.quantity());
+        inventory.setReservedQuantity(0);
 
         return toDto(inventoryRepository.save(inventory));
     }

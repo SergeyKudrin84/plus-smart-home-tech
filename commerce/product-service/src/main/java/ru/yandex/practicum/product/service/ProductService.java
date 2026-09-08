@@ -2,6 +2,7 @@ package ru.yandex.practicum.product.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.product.dto.CategoryDto;
 import ru.yandex.practicum.product.dto.CreateProductRequest;
 import ru.yandex.practicum.product.dto.ProductDto;
@@ -64,6 +65,7 @@ public class ProductService {
         return toDto(productRepository.save(product));
     }
 
+    @Transactional
     public ProductDto update(Long id, UpdateProductRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() ->
