@@ -21,15 +21,15 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @GetMapping
-    public List<InventoryDto> findAll() {
-        return inventoryService.findAll();
+    public ResponseEntity<List<InventoryDto>> findAll() {
+        return ResponseEntity.ok(inventoryService.findAll());
     }
 
     @GetMapping("/{productId}")
-    public InventoryDto findByProductId(
+    public ResponseEntity<InventoryDto> findByProductId(
             @PathVariable Long productId) {
 
-        return inventoryService.findByProductId(productId);
+        return ResponseEntity.ok(inventoryService.findByProductId(productId));
     }
 
     @PostMapping
@@ -42,16 +42,16 @@ public class InventoryController {
     }
 
     @PutMapping
-    public InventoryDto update(
+    public ResponseEntity<InventoryDto> update(
             @Valid @RequestBody UpdateInventoryRequest request) {
 
-        return inventoryService.update(request);
+        return ResponseEntity.ok(inventoryService.update(request));
     }
 
     @PostMapping("/reserve")
-    public ReserveResponse reserve(
+    public ResponseEntity<ReserveResponse> reserve(
             @Valid @RequestBody ReserveRequest request) {
 
-        return inventoryService.reserve(request);
+        return ResponseEntity.ok(inventoryService.reserve(request));
     }
 }

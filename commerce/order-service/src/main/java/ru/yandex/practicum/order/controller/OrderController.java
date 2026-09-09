@@ -31,19 +31,19 @@ public class OrderController {
     }
 
     @GetMapping
-    public List<OrderDto> findAll() {
-        return orderService.findAll();
+    public ResponseEntity<List<OrderDto>> findAll() {
+        return ResponseEntity.ok(orderService.findAll());
     }
 
     @GetMapping("/{id}")
-    public OrderDto findById(@PathVariable Long id) {
-        return orderService.findById(id);
+    public ResponseEntity<OrderDto> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.findById(id));
     }
 
     @GetMapping("/by-email")
-    public List<OrderDto> findByEmail(
+    public ResponseEntity<List<OrderDto>> findByEmail(
             @RequestParam String email
     ) {
-        return orderService.findByCustomerEmail(email);
+        return ResponseEntity.ok(orderService.findByCustomerEmail(email));
     }
 }

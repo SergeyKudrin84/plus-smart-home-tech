@@ -1,6 +1,7 @@
 package ru.yandex.practicum.order.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.order.dto.CreateOrderRequest;
@@ -19,12 +20,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
 
     private final OrderRepository orderRepository;
 
     @Transactional
     public OrderDto create(CreateOrderRequest request) {
+        log.info("Создание заказа: {}", request);
         Order order = new Order();
 
         order.setCustomerName(request.customerName());
@@ -45,46 +48,75 @@ public class OrderService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         order.setTotalPrice(totalPrice);
+        Order savedOrder = orderRepository.save(order);
 
-        return toDto(orderRepository.save(order));
+        log.info("Заказ создан: {}", savedOrder.getId());
+
+        return toDto(savedOrder);
     }
 
     @Transactional(readOnly = true)
     public OrderDto findById(Long id) {
-        return orderRepository.findById(id)
+        log.info("Поиск заказа: id={}", id);
+        OrderDto orderDto = orderRepository.findById(id)
                 .map(this::toDto)
-                .orElseThrow(() ->
-                        new NotFoundException(
-                                "Заказ с id " + id + " не найден"));
+                .orElseThrow(() -> {
+                    log.warn("Заказ с id {} не найден", id);
+
+                    return new NotFoundException(
+                            "Заказ с id " + id + " не найден"
+                    );
+                });
+
+        log.info("Заказ найден: {}", orderDto.id());
+
+        return orderDto;
     }
 
     @Transactional(readOnly = true)
     public List<OrderDto> findAll() {
-        return orderRepository.findAll()
+        List<OrderDto> orders = orderRepository.findAll()
                 .stream()
                 .map(this::toDto)
                 .toList();
+
+        log.info("Найдено заказов: {}", orders.size());
+
+        return orders;
     }
 
     @Transactional(readOnly = true)
     public List<OrderDto> findByCustomerEmail(String email) {
-        return orderRepository.findByCustomerEmail(email)
+        log.info("Поиск заказов по email клиента: {}", email);
+
+        List<OrderDto> orders = orderRepository.findByCustomerEmail(email)
                 .stream()
                 .map(this::toDto)
                 .toList();
+
+        log.info(
+                "По email {} найдено заказов: {}",
+                email,
+                orders.size()
+        );
+
+        return orders;
     }
 
     private OrderItem createItem(
             OrderItemRequest request,
             Order order
     ) {
-        OrderItem item = new OrderItem();
 
-        item.setOrder(order);
-        item.setProductId(request.productId());
-        item.setProductName(request.productName());
-        item.setQuantity(request.quantity());
-        item.setPrice(request.price());
+        log.debug("Добавление товара в заказ: {}", request);
+
+        OrderItem item = OrderItem.builder()
+                .order(order)
+                .productId(request.productId())
+                .productName(request.productName())
+                .quantity(request.quantity())
+                .price(request.price())
+                .build();
 
         return item;
     }

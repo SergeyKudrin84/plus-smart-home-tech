@@ -19,13 +19,13 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<CategoryDto> findAll() {
-        return categoryService.findAll();
+    public ResponseEntity<List<CategoryDto>> findAll() {
+        return ResponseEntity.ok(categoryService.findAll());
     }
 
     @GetMapping("/{id}")
-    public CategoryDto findById(@PathVariable Long id) {
-        return categoryService.findById(id);
+    public ResponseEntity<CategoryDto> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(categoryService.findById(id));
     }
 
     @PostMapping

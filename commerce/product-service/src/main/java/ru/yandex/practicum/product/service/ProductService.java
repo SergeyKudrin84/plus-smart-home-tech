@@ -1,6 +1,7 @@
 package ru.yandex.practicum.product.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.product.dto.CategoryDto;
@@ -17,59 +18,106 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
     public List<ProductDto> findAll() {
-        return productRepository.findByActiveTrue()
+        List<ProductDto> products = productRepository.findByActiveTrue()
                 .stream()
                 .map(this::toDto)
                 .toList();
+
+        log.info("Найдено товаров: {}", products.size());
+
+        return products;
     }
 
     public ProductDto findById(Long id) {
-        return productRepository.findById(id)
+        log.info("Поиск товара: id={}", id);
+
+        ProductDto productDto = productRepository.findById(id)
                 .map(this::toDto)
-                .orElseThrow(() ->
-                        new NotFoundException("Товар с id " + id + " не найден"));
+                .orElseThrow(() -> {
+                    log.warn("Товар с id {} не найден", id);
+
+                    return new NotFoundException(
+                            "Товар с id " + id + " не найден"
+                    );
+                });
+
+        log.info("Товар найден: {}", productDto);
+
+        return productDto;
     }
 
     public List<ProductDto> findByCategory(Long categoryId) {
-        return productRepository.findByCategoryIdAndActiveTrue(categoryId)
+        log.info("Поиск товаров по категории: categoryId={}", categoryId);
+
+        List<ProductDto> products = productRepository
+                .findByCategoryIdAndActiveTrue(categoryId)
                 .stream()
                 .map(this::toDto)
                 .toList();
+
+        log.info(
+                "Для категории {} найдено активных товаров: {}",
+                categoryId,
+                products.size()
+        );
+
+        return products;
     }
 
     public List<ProductDto> search(String query) {
-        return productRepository
+        log.info("Поиск товаров по запросу: '{}'", query);
+
+        List<ProductDto> products = productRepository
                 .findByNameContainingIgnoreCaseAndActiveTrue(query)
                 .stream()
                 .map(this::toDto)
                 .toList();
+
+        log.info("По запросу найдено товаров: {}", products.size());
+
+        return products;
     }
 
     public ProductDto create(CreateProductRequest request) {
+        log.info("Создание товара: {}", request);
+
         Category category = getCategory(request.categoryId());
 
-        Product product = new Product();
-        product.setName(request.name());
-        product.setDescription(request.description());
-        product.setPrice(request.price());
-        product.setCategory(category);
-        product.setImageUrl(request.imageUrl());
-        product.setActive(true);
+        Product product = Product.builder()
+                .name(request.name())
+                .description(request.description())
+                .price(request.price())
+                .category(category)
+                .imageUrl(request.imageUrl())
+                .active(true)
+                .build();
 
-        return toDto(productRepository.save(product));
+        Product savedProduct = productRepository.save(product);
+
+        log.info("Товар создан: {}", savedProduct);
+
+        return toDto(savedProduct);
     }
 
     @Transactional
     public ProductDto update(Long id, UpdateProductRequest request) {
+        log.info("Обновление товара: id={}", id);
+
         Product product = productRepository.findById(id)
-                .orElseThrow(() ->
-                        new NotFoundException("Товар с id " + id + " не найден"));
+                .orElseThrow(() -> {
+                    log.warn("Товар с id {} не найден для обновления", id);
+
+                    return new NotFoundException(
+                            "Товар с id " + id + " не найден"
+                    );
+                });
 
         if (request.name() != null) {
             product.setName(request.name());
@@ -95,7 +143,11 @@ public class ProductService {
             product.setActive(request.active());
         }
 
-        return toDto(productRepository.save(product));
+        Product savedProduct = productRepository.save(product);
+
+        log.info("Товар обновлён: {}", savedProduct);
+
+        return toDto(savedProduct);
     }
 
     private Category getCategory(Long categoryId) {
@@ -104,9 +156,13 @@ public class ProductService {
         }
 
         return categoryRepository.findById(categoryId)
-                .orElseThrow(() ->
-                        new NotFoundException(
-                                "Категория с id " + categoryId + " не найдена"));
+                .orElseThrow(() -> {
+                    log.warn("Категория с id {} не найдена", categoryId);
+
+                    return new NotFoundException(
+                            "Категория с id " + categoryId + " не найдена"
+                    );
+                });
     }
 
     private ProductDto toDto(Product product) {
