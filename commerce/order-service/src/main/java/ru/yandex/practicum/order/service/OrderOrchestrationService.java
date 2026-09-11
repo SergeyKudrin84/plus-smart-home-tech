@@ -58,31 +58,20 @@ public class OrderOrchestrationService {
 
         OrderDto order = orderService.create(orderData);
 
-        log.info(
-                "Оформление заказа завершено: orderId={}",
-                order.id()
-        );
+        log.info("Оформление заказа завершено: orderId={}", order.id());
 
         return order;
     }
 
     private ProductDto getActiveProduct(Long productId) {
-        log.info(
-                "Получение товара из product-service: productId={}",
-                productId
-        );
+        log.info("Получение товара из product-service: productId={}", productId);
 
         ProductDto product = productClient.getProductById(productId);
 
         if (!Boolean.TRUE.equals(product.active())) {
-            log.warn(
-                    "Товар неактивен: productId={}",
-                    productId
-            );
+            log.warn("Товар неактивен: productId={}", productId);
 
-            throw new IllegalArgumentException(
-                    "Товар с id " + productId + " неактивен"
-            );
+            throw new IllegalArgumentException("Товар с id " + productId + " неактивен");
         }
 
         return product;
