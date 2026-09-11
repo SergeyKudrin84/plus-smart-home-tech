@@ -1,4 +1,4 @@
-package ru.yandex.practicum.order.feing.dto;
+package ru.yandex.practicum.order.feign.dto;
 
 public record ReserveResponse(
         Long productId,
