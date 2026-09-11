@@ -4,14 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.order.dto.CreateOrderRequest;
 import ru.yandex.practicum.order.dto.OrderDto;
 import ru.yandex.practicum.order.dto.OrderItemDto;
-import ru.yandex.practicum.order.dto.OrderItemRequest;
 import ru.yandex.practicum.order.entity.Order;
 import ru.yandex.practicum.order.entity.OrderItem;
 import ru.yandex.practicum.order.entity.OrderStatus;
 import ru.yandex.practicum.order.exception.NotFoundException;
+import ru.yandex.practicum.order.feign.dto.OrderData;
+import ru.yandex.practicum.order.feign.dto.OrderItemData;
 import ru.yandex.practicum.order.repository.OrderRepository;
 
 import java.math.BigDecimal;
@@ -26,18 +26,18 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public OrderDto create(CreateOrderRequest request) {
+    public OrderDto create(OrderData request) {
         log.info("Создание заказа: {}", request);
-        Order order = new Order();
-
-        order.setCustomerName(request.customerName());
-        order.setCustomerEmail(request.customerEmail());
-        order.setStatus(OrderStatus.CREATED);
-        order.setStatusDetails(null);
-        order.setCreatedAt(LocalDateTime.now());
+        Order order = Order.builder()
+                .customerName(request.customerName())
+                .customerEmail(request.customerEmail())
+                .status(OrderStatus.CONFIRMED)
+                .statusDetails(null)
+                .createdAt(LocalDateTime.now())
+                .build();
 
         List<OrderItem> items = request.items().stream()
-                .map(itemRequest -> createItem(itemRequest, order))
+                .map(itemData -> createItem(itemData, order))
                 .toList();
 
         order.setItems(items);
@@ -104,7 +104,7 @@ public class OrderService {
     }
 
     private OrderItem createItem(
-            OrderItemRequest request,
+            OrderItemData request,
             Order order
     ) {
 
@@ -113,9 +113,7 @@ public class OrderService {
         OrderItem item = OrderItem.builder()
                 .order(order)
                 .productId(request.productId())
-                .productName(request.productName())
                 .quantity(request.quantity())
-                .price(request.price())
                 .build();
 
         return item;
