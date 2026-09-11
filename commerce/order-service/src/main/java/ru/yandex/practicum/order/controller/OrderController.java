@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.order.dto.CreateOrderRequest;
 import ru.yandex.practicum.order.dto.OrderDto;
+import ru.yandex.practicum.order.service.OrderOrchestrationService;
 import ru.yandex.practicum.order.service.OrderService;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    private final OrderOrchestrationService orderOrchestrationService;
 
     @PostMapping
     public ResponseEntity<OrderDto> create(
@@ -27,7 +29,7 @@ public class OrderController {
         log.info("ORDER REQUEST = " + request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(orderService.create(request));
+                .body(orderOrchestrationService.createOrder(request));
     }
 
     @GetMapping
