@@ -1,9 +1,9 @@
-package ru.yandex.practicum.order.feing;
+package ru.yandex.practicum.order.feign;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import ru.yandex.practicum.order.feing.dto.*;
+import ru.yandex.practicum.order.feign.dto.*;
 
 @FeignClient(name = "inventory-service")
 public interface InventoryClient {
