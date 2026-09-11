@@ -9,6 +9,8 @@ import ru.yandex.practicum.order.dto.OrderItemRequest;
 import ru.yandex.practicum.order.feign.*;
 import ru.yandex.practicum.order.feign.dto.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,28 +41,43 @@ public class OrderOrchestrationService {
                                 this::getActiveProduct
                         ));
 
-        quantitiesByProduct.forEach((productId, quantity) -> {
-            log.info("Резервирование товара: productId={}, quantity={}", productId, quantity);
-            inventoryClient.reserveStock(new ReserveRequest(productId, quantity));
-        });
+        List<Reservation> reservations = new ArrayList<>();
 
-        OrderData orderData = new OrderData(
-                request.customerName(),
-                request.customerEmail(),
-                request.items()
-                        .stream()
-                        .map(item -> toOrderItemData(
-                                item,
-                                products.get(item.productId())
-                        ))
-                        .toList()
-        );
+        try {
+            quantitiesByProduct.forEach((productId, quantity) -> {
+                reserveProduct(productId, quantity);
+                reservations.add(new Reservation(productId, quantity));
+            });
 
-        OrderDto order = orderService.create(orderData);
+            OrderData orderData = new OrderData(
+                    request.customerName(),
+                    request.customerEmail(),
+                    request.items()
+                            .stream()
+                            .map(item -> toOrderItemData(
+                                    item,
+                                    products.get(item.productId())
+                            ))
+                            .toList()
+            );
 
-        log.info("Оформление заказа завершено: orderId={}", order.id());
+            OrderDto order = orderService.create(orderData);
 
-        return order;
+            log.info("Оформление заказа завершено: orderId={}", order.id());
+
+            return order;
+
+        } catch (Exception e) {
+            log.error(
+                    "Ошибка при оформлении заказа. Запускаем компенсацию резервов: {}",
+                    e.getMessage(),
+                    e
+            );
+
+            releaseReservations(reservations);
+
+            throw e;
+        }
     }
 
     private ProductDto getActiveProduct(Long productId) {
@@ -87,5 +104,54 @@ public class OrderOrchestrationService {
                 request.quantity(),
                 product.price()
         );
+    }
+
+    private record Reservation(
+            Long productId,
+            Integer quantity
+    ) {
+    }
+
+    private void reserveProduct(Long productId, Integer quantity) {
+        log.info("Резервирование товара: productId={}, quantity={}", productId, quantity);
+
+        inventoryClient.reserveStock(new ReserveRequest(productId, quantity));
+
+        log.info("Резервирование успешно: productId={}, quantity={}", productId, quantity);
+    }
+
+    private void releaseReservations(
+            List<Reservation> reservations
+    ) {
+        for (Reservation reservation : reservations) {
+            try {
+                log.info(
+                        "Снятие резерва: productId={}, quantity={}",
+                        reservation.productId(),
+                        reservation.quantity()
+                );
+
+                inventoryClient.releaseStock(
+                        new ReleaseRequest(
+                                reservation.productId(),
+                                reservation.quantity()
+                        )
+                );
+
+                log.info(
+                        "Резерв снят: productId={}, quantity={}",
+                        reservation.productId(),
+                        reservation.quantity()
+                );
+
+            } catch (Exception e) {
+                log.error(
+                        "Не удалось снять резерв: productId={}, quantity={}",
+                        reservation.productId(),
+                        reservation.quantity(),
+                        e
+                );
+            }
+        }
     }
 }
