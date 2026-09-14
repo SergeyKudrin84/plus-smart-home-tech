@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.inventory.dto.InventoryDto;
-import ru.yandex.practicum.inventory.dto.ReserveRequest;
-import ru.yandex.practicum.inventory.dto.ReserveResponse;
-import ru.yandex.practicum.inventory.dto.UpdateInventoryRequest;
+import ru.yandex.practicum.inventory.dto.*;
 import ru.yandex.practicum.inventory.entity.Inventory;
 import ru.yandex.practicum.inventory.exception.InsufficientStockException;
 import ru.yandex.practicum.inventory.exception.NotFoundException;
@@ -141,6 +138,40 @@ public class InventoryService {
                 true,
                 inventory.getAvailableQuantity(),
                 "Товар успешно зарезервирован"
+        );
+    }
+
+    @Transactional
+    public ReserveResponse release(ReleaseRequest request) {
+        log.info("Снятие резерва товара: {}", request);
+
+        Inventory inventory = getInventory(request.productId());
+
+        Integer reservedQuantity = inventory.getReservedQuantity();
+
+        if (reservedQuantity < request.quantity()) {
+            log.warn("Невозможно снять резерв: {}", request);
+
+            throw new IllegalArgumentException(
+                    "Нельзя снять резерв в количестве "
+                            + request.quantity()
+                            + " для товара с id "
+                            + request.productId()
+                            + ": зарезервировано только "
+                            + reservedQuantity
+            );
+        }
+
+        inventory.setReservedQuantity(reservedQuantity - request.quantity());
+
+        inventoryRepository.save(inventory);
+
+        log.info("Резерв успешно снят: {}", request);
+
+        return new ReserveResponse(
+                true,
+                inventory.getAvailableQuantity(),
+                "Резерв успешно снят"
         );
     }
 
