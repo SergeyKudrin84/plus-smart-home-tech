@@ -114,6 +114,8 @@ public class OrderService {
                 .order(order)
                 .productId(request.productId())
                 .quantity(request.quantity())
+                .productName(request.productName())
+                .price(request.price())
                 .build();
 
         return item;
