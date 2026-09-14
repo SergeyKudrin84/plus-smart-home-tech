@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import serialization.GeneralAvroSerializer;
 
 import java.util.Properties;
 
@@ -23,13 +24,13 @@ public class KafkaClientConfiguration {
         return new KafkaClient() {
 
             private Producer<String, SpecificRecordBase> producer;
+            //private Producer<String, byte[]> producer;
 
             @Override
             public Producer<String, SpecificRecordBase> getProducer() {
                 if (producer == null) {
                     initProducer();
                 }
-
                 return producer;
             }
 
