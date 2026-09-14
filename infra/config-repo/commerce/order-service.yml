@@ -16,10 +16,6 @@ spring:
             readTimeout: 2000
             loggerLevel: basic
 
-logging:
-  level:
-    ru.yandex.practicum.order.feign.InventoryClient: DEBUG
-
   sql:
     init:
       mode: always
@@ -35,3 +31,7 @@ logging:
 
 server:
   port: 0
+
+logging:
+  level:
+    ru.yandex.practicum.order.feign.InventoryClient: DEBUG
