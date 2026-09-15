@@ -89,16 +89,37 @@ public class OrderOrchestrationService {
                 Long productId = entry.getKey();
                 Integer quantity = entry.getValue();
 
-                try {
-                    reserveProduct(productId, quantity);
+                ServiceCallResult<ReserveResponse> result =
+                        reserveProduct(productId, quantity);
+
+                if (result instanceof ServiceCallResult.Success<ReserveResponse> success) {
+
                     reservedQuantities.put(productId, quantity);
 
-                } catch (InventoryServiceUnavailableException e) {
-                    log.warn(
-                            "Inventory service недоступен: productId={}. " +
-                                    "Продолжаем оформление в degraded-сценарии",
+                    log.info(
+                            "Товар успешно зарезервирован: productId={}, quantity={}, availableQuantity={}",
                             productId,
-                            e
+                            quantity,
+                            success.value().availableQuantity()
+                    );
+
+                } else if (result instanceof ServiceCallResult.Failure<ReserveResponse> failure) {
+
+                    log.warn(
+                            "Резервирование отклонено: productId={}, reason={}",
+                            productId,
+                            failure.message()
+                    );
+
+                    throw new OrderProcessingException(failure.message());
+
+                } else if (result instanceof ServiceCallResult.Degraded<ReserveResponse> degradedResult) {
+
+                    log.warn(
+                            "Inventory service недоступен: productId={}, reason={}. "
+                                    + "Продолжаем оформление в degraded-сценарии",
+                            productId,
+                            degradedResult.reason()
                     );
 
                     degraded = true;

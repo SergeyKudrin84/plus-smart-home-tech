@@ -1,5 +1,6 @@
 package ru.yandex.practicum.order.feign;
 
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,7 @@ public class InventoryClientFallbackFactory
     @Override
     public InventoryClient create(Throwable cause) {
         log.error(
-                "Inventory service недоступен. Причина: {}",
+                "Ошибка вызова inventory-service. Причина: {}",
                 cause.getMessage(),
                 cause
         );
@@ -27,6 +28,13 @@ public class InventoryClientFallbackFactory
             public ReserveResponse reserveStock(
                     ReserveRequest request
             ) {
+
+                Throwable actualCause = unwrap(cause);
+
+                if (actualCause instanceof FeignException feignException) {
+                    throw feignException;
+                }
+
                 throw new InventoryServiceUnavailableException(
                         request.productId(),
                         cause
@@ -37,11 +45,29 @@ public class InventoryClientFallbackFactory
             public ReserveResponse releaseStock(
                     ReleaseRequest request
             ) {
+
+                Throwable actualCause = unwrap(cause);
+
+                if (actualCause instanceof FeignException feignException) {
+                    throw feignException;
+                }
+
                 throw new InventoryServiceUnavailableException(
                         request.productId(),
                         cause
                 );
             }
         };
+    }
+
+    private Throwable unwrap(Throwable cause) {
+        Throwable current = cause;
+
+        while (current.getCause() != null
+                && !(current instanceof FeignException)) {
+            current = current.getCause();
+        }
+
+        return current;
     }
 }
