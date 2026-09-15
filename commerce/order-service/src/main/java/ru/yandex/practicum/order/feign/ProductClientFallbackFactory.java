@@ -25,10 +25,8 @@ public class ProductClientFallbackFactory
             @Override
             public ProductDto getProductById(Long productId) {
 
-                Throwable actualCause = unwrap(cause);
-
-                if (actualCause instanceof FeignException feignException) {
-                    throw feignException;
+                if (isBusinessFailure(cause)) {
+                    throw (FeignException) cause;
                 }
 
                 throw new ProductServiceUnavailableException(
@@ -39,14 +37,8 @@ public class ProductClientFallbackFactory
         };
     }
 
-    private Throwable unwrap(Throwable cause) {
-        Throwable current = cause;
-
-        while (current.getCause() != null
-                && !(current instanceof FeignException)) {
-            current = current.getCause();
-        }
-
-        return current;
+    private boolean isBusinessFailure(Throwable cause) {
+        return cause instanceof FeignException.NotFound
+                || cause instanceof FeignException.Conflict;
     }
 }

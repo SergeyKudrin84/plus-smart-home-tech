@@ -29,10 +29,8 @@ public class InventoryClientFallbackFactory
                     ReserveRequest request
             ) {
 
-                Throwable actualCause = unwrap(cause);
-
-                if (actualCause instanceof FeignException feignException) {
-                    throw feignException;
+                if (isBusinessFailure(cause)) {
+                    throw (FeignException) cause;
                 }
 
                 throw new InventoryServiceUnavailableException(
@@ -46,10 +44,8 @@ public class InventoryClientFallbackFactory
                     ReleaseRequest request
             ) {
 
-                Throwable actualCause = unwrap(cause);
-
-                if (actualCause instanceof FeignException feignException) {
-                    throw feignException;
+                if (isBusinessFailure(cause)) {
+                    throw (FeignException) cause;
                 }
 
                 throw new InventoryServiceUnavailableException(
@@ -60,14 +56,8 @@ public class InventoryClientFallbackFactory
         };
     }
 
-    private Throwable unwrap(Throwable cause) {
-        Throwable current = cause;
-
-        while (current.getCause() != null
-                && !(current instanceof FeignException)) {
-            current = current.getCause();
-        }
-
-        return current;
+    private boolean isBusinessFailure(Throwable cause) {
+        return cause instanceof FeignException.NotFound
+                || cause instanceof FeignException.Conflict;
     }
 }
