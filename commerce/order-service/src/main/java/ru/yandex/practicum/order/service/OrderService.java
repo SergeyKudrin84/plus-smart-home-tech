@@ -26,13 +26,13 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public OrderDto create(OrderData request) {
+    public OrderDto create(OrderData request, OrderStatus status, String statusDetails) {
         log.info("Создание заказа: {}", request);
         Order order = Order.builder()
                 .customerName(request.customerName())
                 .customerEmail(request.customerEmail())
-                .status(OrderStatus.CONFIRMED)
-                .statusDetails(null)
+                .status(status)
+                .statusDetails(statusDetails)
                 .createdAt(LocalDateTime.now())
                 .build();
 
