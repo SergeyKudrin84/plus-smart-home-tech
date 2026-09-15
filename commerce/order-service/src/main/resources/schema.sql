@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS orders
     customer_name  VARCHAR(255)   NOT NULL,
     customer_email VARCHAR(255)   NOT NULL,
     status         VARCHAR(50)    NOT NULL,
-    total_price    NUMERIC(19, 2) NOT NULL,
+    total_price    NUMERIC(19, 2),
     status_details VARCHAR(1000),
     created_at     TIMESTAMP      NOT NULL
     );
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS order_items
     product_id   BIGINT         NOT NULL,
     product_name VARCHAR(255)   NOT NULL,
     quantity     INTEGER        NOT NULL,
-    price        NUMERIC(19, 2) NOT NULL,
+    price        NUMERIC(19, 2),
 
     CONSTRAINT fk_order_items_order
     FOREIGN KEY (order_id)

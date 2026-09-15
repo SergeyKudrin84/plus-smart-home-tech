@@ -11,6 +11,7 @@ import ru.yandex.practicum.order.exception.OrderProcessingException;
 import ru.yandex.practicum.order.feign.*;
 import ru.yandex.practicum.order.feign.dto.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -232,6 +233,16 @@ public class OrderOrchestrationService {
             OrderItemRequest request,
             ProductDto product
     ) {
+
+        if (product == null) {
+            return new OrderItemData(
+                    request.productId(),
+                    "Товар #" + request.productId() + " (ожидает проверки)",
+                    request.quantity(),
+                    null
+            );
+        }
+
         return new OrderItemData(
                 product.id(),
                 product.name(),

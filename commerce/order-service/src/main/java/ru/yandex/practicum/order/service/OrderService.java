@@ -42,7 +42,17 @@ public class OrderService {
 
         order.setItems(items);
 
-        BigDecimal totalPrice = items.stream()
+//        BigDecimal totalPrice = items.stream()
+//                .map(item -> item.getPrice()
+//                        .multiply(BigDecimal.valueOf(item.getQuantity())))
+//                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        boolean priceUnknown = items.stream()
+                .anyMatch(item -> item.getPrice() == null);
+
+        BigDecimal totalPrice = priceUnknown
+                ? null
+                : items.stream()
                 .map(item -> item.getPrice()
                         .multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
