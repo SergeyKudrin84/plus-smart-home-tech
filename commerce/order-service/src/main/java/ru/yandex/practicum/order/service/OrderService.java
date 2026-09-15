@@ -26,13 +26,13 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public OrderDto create(OrderData request) {
+    public OrderDto create(OrderData request, OrderStatus status, String statusDetails) {
         log.info("Создание заказа: {}", request);
         Order order = Order.builder()
                 .customerName(request.customerName())
                 .customerEmail(request.customerEmail())
-                .status(OrderStatus.CONFIRMED)
-                .statusDetails(null)
+                .status(status)
+                .statusDetails(statusDetails)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -42,7 +42,17 @@ public class OrderService {
 
         order.setItems(items);
 
-        BigDecimal totalPrice = items.stream()
+//        BigDecimal totalPrice = items.stream()
+//                .map(item -> item.getPrice()
+//                        .multiply(BigDecimal.valueOf(item.getQuantity())))
+//                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        boolean priceUnknown = items.stream()
+                .anyMatch(item -> item.getPrice() == null);
+
+        BigDecimal totalPrice = priceUnknown
+                ? null
+                : items.stream()
                 .map(item -> item.getPrice()
                         .multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

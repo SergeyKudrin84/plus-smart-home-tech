@@ -6,6 +6,8 @@ spring:
     password: 12345
   cloud:
     openfeign:
+      circuitbreaker:
+        enabled: true
       client:
         config:
           default: # применяется по умолчанию для всех клиентов
@@ -35,3 +37,16 @@ server:
 logging:
   level:
     ru.yandex.practicum.order.feign.InventoryClient: DEBUG
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 3s
